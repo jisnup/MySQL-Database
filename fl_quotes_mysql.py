@@ -1,5 +1,6 @@
 """
 Author: Jisnu Prabhu
+Company: Tod Todd insurance
 Date: 01/11/2019
 This code loads the flat file and creates and inserts the data into tempory tables. It checks if the duplicates are present.
 It deletes the duplicates and inserts the rows to quotes table.
@@ -42,7 +43,7 @@ df[['customer_last_name', 'customer_first_name']] = df['customer_name'].str.spli
 df.drop(['customer_name', 'sub_producer','agent_number','customer_state','customer_zip_code','channel'], axis = 1 , inplace = True)
 df = df[['quote_number','sales_first_name','sales_last_name','customer_first_name','customer_last_name', 'production_date', 'product', 'quoted_item_count', 'quoted_premium']]
 # Loads data into a tempory file.
-df.to_sql(name = 'fl_quotes_temp', con = engine, if_exists = 'append', index = False)
+df.to_sql(name = 'fl_quotes_temp', con = engine, if_exists = 'replace', index = False)
 
 conn.execute(
 """
@@ -58,38 +59,23 @@ CREATE TABLE IF NOT EXISTS fl_quotes_temp(
 	quoted_premium FLOAT(8,2))
     ENGINE=INNODB;
 """)
-# TODO: Remove the duplicates
-conn.execute(
-"""
-DELETE FROM fl_quotes_temp
-	WHERE quote_number NOT IN (
-	SELECT quote_number FROM (
-	fl_quotes_temp AS f
-	INNER JOIN fl_quotes AS c
-	WHERE f.quote_number = c.quote_number AND f.production_date = c.production_date)
 
-	WHERE category_id NOT IN (
-    SELECT cid FROM (
-        SELECT DISTINCT category.id AS cid FROM category 
-        INNER JOIN story_category ON category_id=category.id
-    ) AS c
-)
-""")
-# TODO: Work on join statement (ON)
 conn.execute(
 """
 INSERT INTO fl_quotes(
 	quote_number, license, customer_first_name, customer_last_name, production_date, product ,quoted_item_count ,quoted_premium) 
 	SELECT q.quote_number, e.license, q.customer_first_name, q.customer_last_name, q.production_date, q.product , q.quoted_item_count , q.quoted_premium 
 	FROM fl_quotes_temp AS q
-	JOIN employee AS e
-	ON (e.first_name = q.sales_first_name AND e.last_name = q.sales_last_name) 
+	LEFT JOIN employee AS e
+	ON (e.first_name = q.sales_first_name AND e.last_name = q.sales_last_name)
+	WHERE (q.quote_number NOT IN (SELECT quote_number FROM fl_quotes) AND q.production_date NOT IN (SELECT production_date FROM fl_quotes))
+	ORDER BY production_date 
 """)
 
 conn.execute(""" DROP TABLE fl_quotes_temp; """)
 
 # string with the year+month+day for current day 
-today = dt.now().date()
+"""today = dt.now().date()
 if today.day < 10:
   dayNo = '0'+str(today.day)
 else:
@@ -97,8 +83,8 @@ else:
 day = str(today.year)+str(today.month)+ dayNo
 
 # Moving the file to archive after insertion with the date for the tracking
-location_file = "C:/Users/Jisnu/Desktop/jisnu/Extra/business_mysql_"+day+".py"
-shutil.move("C:/Users/Jisnu/Desktop/jisnu/Data/business_mysql.py", location_file)
+location_file = "C:/Users/Jisnu/Desktop/jisnu/Extra/P&C Total Serious Quotes Detail_"+day+".xlsx"
+shutil.move("C:/Users/Jisnu/Desktop/jisnu/Data/P&C Total Serious Quotes Detail.xlsx", location_file)"""
 print('Insert compelete after: {} seconds File inserted and move to Archive!!'.format(time.time() - start_time))
 
 # Deal with dup
