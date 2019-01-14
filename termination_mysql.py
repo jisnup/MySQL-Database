@@ -13,7 +13,8 @@ df.columns = [c.replace(" ", "_") for c in df.columns]
 df.rename(columns={'premium\nnew':'premium_new', 'premium\nold' :'premium_old'}, inplace=True)
 df.drop(['agent_number','column1','street_address','city','state','zip_code','column3','email','column2','insured_first_name','insured_last_name','phone_number',
 			'line_code','anniversary_effective_date','renewal_effective_date'], axis = 1 ,inplace = True)
-df.to_sql(name = 'termination_temp', con = engine, if_exists = 'append', index = False)
+df.drop_duplicates(keep = 'first', inplace = True)
+df.to_sql(name = 'termination_temp', con = engine, if_exists = 'replace', index = False)
 
 conn.execute(
 """
