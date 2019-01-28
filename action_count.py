@@ -5,9 +5,13 @@ Date: 01/11/2019
 This code loads the flat file and creates and inserts the data into tempory tables. It checks if the duplicates are present.
 It deletes the duplicates and inserts the rows to quotes table.
 """
+import sys
+sys.path.append('C://Users//Jisnu//AppData//Local//Programs//Python//Python37-32//lib//site-packages//')
+
 # Packages
 from sqlalchemy import create_engine # Connect to database
 import mysql.connector
+import numpy as np
 import pandas as pd
 from openpyxl import load_workbook # write to excel
 from datetime import datetime as dt
