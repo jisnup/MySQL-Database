@@ -28,18 +28,7 @@ conn = engine.connect()
 os.chdir('C:/Users/Jisnu/Desktop/jisnu/data')
 path_file = os.getcwd()
 # filename consists double digit $ Padding zero
-d = dt.now().date()
-if d.day < 10: 
-  dd = '0'+str(d.day)
-else:
-  dd = str(d.day)
-
-if d.month < 10:
-  dm = '0'+str(d.month)
-else:
-  dm = str(d.month)
-
-day = str(d.year)+dm+dd
+day = dt.now().strftime("%Y%m%d")
 
 # File Name pattern
 def pull_pattern(file_pattern):
@@ -109,10 +98,10 @@ try:
 	file_location = pull_file_path(pattern)
 	shutil.move(file_location, new_location)
 
-	print('Action Count insertion compelete after: {} seconds and moved to Archive!!'.format(time.time() - start_time))
+	print('\n Action Count insertion compelete after: {} seconds and moved to Archive!!'.format(time.time() - start_time))
 
 except:
-	print(' ERROR !!  ** File not uploaded ** (Past X-Dates)')
+	print('\n ERROR !!  ** File not uploaded ** (Past X-Dates)')
 
 
 try:
@@ -168,7 +157,9 @@ try:
 	file_location = pull_file_path(pattern)
 	shutil.move(file_location, new_location)
 
-	print('Past follow ups insertion compelete after: {} seconds and moved to Archive!!'.format(time.time() - start_time))
+	print('\n Past follow ups insertion compelete after: {} seconds and moved to Archive!!'.format(time.time() - start_time))
 
 except:
-	print(' Error Past Follow Up file missing ')
+	print('\n ERROR !!  ** File not uploaded ** (Follow up file missing)')
+
+input('\n Enter: ')
